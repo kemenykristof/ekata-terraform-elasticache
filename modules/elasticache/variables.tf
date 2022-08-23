@@ -22,7 +22,10 @@ variable "required_tags" {
   }
 }
 
-
+variable "extra_tags" {
+  type    = map(any)
+  default = {}
+}
 
 variable "cluster_id" {
   type        = string
