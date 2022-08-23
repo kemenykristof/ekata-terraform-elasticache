@@ -7,11 +7,12 @@ resource "aws_elasticache_replication_group" "redis_cluster" {
   engine_version               = var.redis_version
   transit_encryption_enabled   = var.transit_encryption_enabled
   at_rest_encryption_enabled   = var.at_rest_encryption_enabled
-  parameter_group_name         = var.parameter_group_name
+  parameter_group_name         = aws_elasticache_parameter_group.redis_parameters
   port                         = var.port
   preferred_availability_zones = var.availability_zones
   num_node_groups              = var.num_node_groups
   replicas_per_node_group      = var.replicas_per_node_group
+  subnet_group_name           = aws_elasticache_subnet_group.redis_subnet.id
 
 }
 
