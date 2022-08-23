@@ -25,3 +25,26 @@ resource "aws_elasticache_parameter_group" "redis_parameters" {
   }
 
 }
+
+resource "aws_vpc" "elasticache_vpc" {
+  cidr_block = "10.0.0.0/16"
+
+  tags = {
+    Name = "Elasticache Redis vpc test"
+  }
+}
+
+resource "aws_subnet" "elasticache_subnet" {
+  vpc_id            = aws_vpc.elasticache_vpc.id
+  cidr_block        = "10.0.0.0/24"
+  availability_zone = "us-west-2a"
+
+  tags = {
+    Name = "Elasticache Redis subnet test"
+  }
+}
+
+resource "aws_elasticache_subnet_group" "redis_subnet" {
+  name       = "Elasticache Redis subnet group test"
+  subnet_ids = [aws_subnet.elasticache_subnet.id]
+}
