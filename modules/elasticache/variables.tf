@@ -22,7 +22,7 @@ variable "required_tags" {
   }
 }
 
-variable "extra_tags" {
+variable "additional_tags" {
   type    = map(any)
   default = {}
 }
