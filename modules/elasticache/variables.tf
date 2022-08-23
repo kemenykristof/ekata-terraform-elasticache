@@ -1,5 +1,5 @@
 variable "required_tags" {
-  description = "Required tags for this resource"
+  description = "Required tags for this resource: Owner, Service, Name, Classification"
 
   validation {
     condition     = contains(["Data Services", "Platform API", "Infrastructure", "Web"], var.required_tags.owner)
@@ -33,10 +33,6 @@ variable "cluster_id" {
   description = " (Required) Group identifier. ElastiCache converts this name to lowercase. Changing this value will re-create the resource."
 }
 
-variable "engine" {
-  default     = ""
-  description = "Elasticache engine type such as redis or memcached"
-}
 
 variable "node_type" {
   default     = "cache.t2.micro"
@@ -44,9 +40,14 @@ variable "node_type" {
 
 }
 
-variable "num_cache_nodes" {
+variable "num_node_groups" {
+  default     = 2
+  description = "Number of node groups (shards) for this Redis replication group. Changing this number will trigger an online resizing operation before other settings modifications."
+}
+
+variable "replicas_per_node_group" {
   default     = 1
-  description = "The initial number of cache nodes that the cache cluster will have. For Redis, this value must be 1. For Memcached, this value must be between 1 and 40."
+  description = "Number of replica nodes in each node group. Valid values are 0 to 5. Changing this number will trigger an online resizing operation before other settings modifications."
 }
 
 variable "parameter_group_name" {
@@ -55,7 +56,6 @@ variable "parameter_group_name" {
 }
 
 variable "port" {
-  default     = ""
   description = "The port number on which each of the cache nodes will accept connections. For Memcached the default is 11211, and for Redis the default port is 6379. "
 }
 
@@ -64,3 +64,23 @@ variable "availability_zones" {
   default     = ["us-east-2", "eu-west-1", "ap-east-1"]
   description = "Availability Zone for the cache cluster."
 }
+
+variable "description" {
+  description = "User-created description for the replication group. Must not be empty."
+}
+
+variable "transit_encryption_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "at_rest_encryption_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "automatic_failover_enabled" {
+  default     = true
+  description = "Must be enabled for Redis (cluster mode enabled) replication groups. Specifies whether a read-only replica will be automatically promoted to read/write primary if the existing primary fails. If enabled, num_node_groups/num_cache_clusters must be greater than 1. "
+}
+
