@@ -84,3 +84,8 @@ variable "automatic_failover_enabled" {
   description = "Must be enabled for Redis (cluster mode enabled) replication groups. Specifies whether a read-only replica will be automatically promoted to read/write primary if the existing primary fails. If enabled, num_node_groups/num_cache_clusters must be greater than 1. "
 }
 
+variable "redis_version" {
+  description = "Redis engine version to use"
+  type        = string
+  default     = "6.0"
+}

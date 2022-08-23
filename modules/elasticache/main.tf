@@ -4,6 +4,7 @@ resource "aws_elasticache_replication_group" "redis_cluster" {
   description                  = var.description
   node_type                    = var.node_type
   engine                       = "redis"
+  engine_version               = var.redis_version
   transit_encryption_enabled   = var.transit_encryption_enabled
   at_rest_encryption_enabled   = var.at_rest_encryption_enabled
   parameter_group_name         = var.parameter_group_name
@@ -16,7 +17,7 @@ resource "aws_elasticache_replication_group" "redis_cluster" {
 
 resource "aws_elasticache_parameter_group" "redis_parameters" {
   name   = "cache-params"
-  family = "redis6.0"
+  family = var.redis_version
 
   parameter {
     name  = "maxmemory-policy"
