@@ -1,24 +1,33 @@
+resource "aws_elasticache_global_replication_group" "default" {
+  global_replication_group_id_suffix = "replica"
+  primary_replication_group_id       = aws_elasticache_replication_group.redis_cluster_primary.id
+}
+
 #Module for AWS Elasticache Redis Cluster 
-resource "aws_elasticache_replication_group" "redis_cluster" {
-  replication_group_id         = var.cluster_id
-  description                  = var.description
-  node_type                    = var.node_type
-  engine                       = "redis"
-  engine_version               = var.redis_version
-  transit_encryption_enabled   = var.transit_encryption_enabled
-  at_rest_encryption_enabled   = var.at_rest_encryption_enabled
-  parameter_group_name         = aws_elasticache_parameter_group.redis_parameters
-  port                         = var.port
-  preferred_availability_zones = var.availability_zones
-  num_node_groups              = var.num_node_groups
-  replicas_per_node_group      = var.replicas_per_node_group
-  subnet_group_name           = aws_elasticache_subnet_group.redis_subnet.id
+resource "aws_elasticache_replication_group" "redis_cluster_primary" {
+  provider                   = aws.us-east-2
+  replication_group_id       = var.cluster_id
+  description                = var.description
+  node_type                  = var.node_type
+  engine                     = "redis"
+  engine_version             = var.redis_version
+  transit_encryption_enabled = var.transit_encryption_enabled
+  at_rest_encryption_enabled = var.at_rest_encryption_enabled
+  parameter_group_name       = aws_elasticache_parameter_group.redis_parameters.name
+  port                       = var.port
+  automatic_failover_enabled = var.automatic_failover_enabled
+  num_node_groups            = var.num_node_groups
+  replicas_per_node_group    = var.replicas_per_node_group
+
+  depends_on = [
+    aws_elasticache_parameter_group.redis_parameters
+  ]
 
 }
 
 resource "aws_elasticache_parameter_group" "redis_parameters" {
-  name   = "cache-params"
-  family = var.redis_version
+  name   = "redis-cache-parameters"
+  family = "redis6.x"
 
   parameter {
     name  = "maxmemory-policy"
@@ -27,25 +36,22 @@ resource "aws_elasticache_parameter_group" "redis_parameters" {
 
 }
 
-resource "aws_vpc" "elasticache_vpc" {
-  cidr_block = "10.0.0.0/16"
+resource "aws_elasticache_replication_group" "redis_cluster_secondary" {
+  provider = aws.eu-west-1
 
-  tags = {
-    Name = "Elasticache Redis vpc test"
-  }
+  replication_group_id        = "redis-cluster-secondary"
+  description                 = "secondary replication group"
+  global_replication_group_id = aws_elasticache_global_replication_group.default.global_replication_group_id
+
+  number_cache_clusters = var.num_node_groups
 }
 
-resource "aws_subnet" "elasticache_subnet" {
-  vpc_id            = aws_vpc.elasticache_vpc.id
-  cidr_block        = "10.0.0.0/24"
-  availability_zone = "us-west-2a"
+resource "aws_elasticache_replication_group" "redis_cluster_tertiary" {
+  provider = aws.ap-east-1
 
-  tags = {
-    Name = "Elasticache Redis subnet test"
-  }
-}
+  replication_group_id        = "redis-cluster-tertiary"
+  description                 = "tertiary replication group"
+  global_replication_group_id = aws_elasticache_global_replication_group.default.global_replication_group_id
 
-resource "aws_elasticache_subnet_group" "redis_subnet" {
-  name       = "Elasticache Redis subnet group test"
-  subnet_ids = [aws_subnet.elasticache_subnet.id]
+  number_cache_clusters = var.num_node_groups
 }

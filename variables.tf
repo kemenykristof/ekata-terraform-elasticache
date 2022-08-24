@@ -29,7 +29,7 @@ variable "additional_tags" {
 
 variable "cluster_id" {
   type        = string
-  default     = ""
+  default     = "cluster-test"
   description = " (Required) Group identifier. ElastiCache converts this name to lowercase. Changing this value will re-create the resource."
 }
 
@@ -41,7 +41,7 @@ variable "node_type" {
 }
 
 variable "num_node_groups" {
-  default     = 2
+  default     = 3
   description = "Number of node groups (shards) for this Redis replication group. Changing this number will trigger an online resizing operation before other settings modifications."
 }
 
@@ -57,12 +57,6 @@ variable "parameter_group_name" {
 
 variable "port" {
   description = "The port number on which each of the cache nodes will accept connections. For Memcached the default is 11211, and for Redis the default port is 6379. "
-}
-
-variable "availability_zones" {
-  type        = list(string)
-  default     = ["us-east-2", "eu-west-1", "ap-east-1"]
-  description = "Availability Zone for the cache cluster."
 }
 
 variable "description" {
